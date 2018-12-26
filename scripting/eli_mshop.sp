@@ -16,9 +16,10 @@
 #include <multicolors>
 #include <cstrike>
 #include <sdkhooks>
+#include <smlib>
 
 #define PLUGIN_AUTHOR "Elitcky"
-#define PLUGIN_VERSION "1.10"
+#define PLUGIN_VERSION "1.2"
 
 #define Prefix "SHOP"
 #pragma newdecls required
@@ -41,6 +42,7 @@ bool g_bUserfreezegrenade[MAXPLAYERS + 1];
 bool g_bUserspeed[MAXPLAYERS + 1];
 bool g_bUserhp[MAXPLAYERS + 1];
 bool g_bUserdeagle[MAXPLAYERS + 1];
+bool g_bUserawp[MAXPLAYERS + 1];
 bool g_bUserinvisible[MAXPLAYERS + 1];
 bool g_bUsergravity[MAXPLAYERS + 1];
 
@@ -64,9 +66,9 @@ KeyValues kvtShop;
 
 public Plugin myinfo = 
 {
-	name = "Simple Shop Menu v1.0", 
+	name = "Simple Shop Menu v1.2", 
 	author = PLUGIN_AUTHOR, 
-	description = "It's just a normal SHOP. I wanted one of this for my HidenSeek.", 
+	description = "Shop for HNS", 
 	version = PLUGIN_VERSION, 
 	url = ""
 };
@@ -159,6 +161,7 @@ public void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast
 	g_bUserhegrenade[client] = false;
 	g_bUserfreezegrenade[client] = false;
 	g_bUserdeagle[client] = false;
+	g_bUserawp[client] = false;
 	g_bUserspeed[client] = false;
 	g_bUserinvisible[client] = false;
 	g_bUsergravity[client] = false;
@@ -178,6 +181,7 @@ public void OnClientConnected(int client)
 	g_bUserhegrenade[client] = false;
 	g_bUserfreezegrenade[client] = false;
 	g_bUserdeagle[client] = false;
+	g_bUserawp[client] = false;
 	g_bUserspeed[client] = false;
 	g_bUserinvisible[client] = false;
 	g_bUsergravity[client] = false;
@@ -194,6 +198,7 @@ public void OnClientDisconnect(int client)
 	g_bUserhegrenade[client] = false;
 	g_bUserfreezegrenade[client] = false;
 	g_bUserdeagle[client] = false;
+	g_bUserawp[client] = false;
 	g_bUserspeed[client] = false;
 	g_bUserinvisible[client] = false;
 	g_bUsergravity[client] = false;
@@ -212,6 +217,7 @@ public void Event_PlayerDeath(Handle event, const char[] name, bool dontBroadcas
 	g_bUserhegrenade[client] = false;
 	g_bUserfreezegrenade[client] = false;
 	g_bUserdeagle[client] = false;
+	g_bUserawp[client] = false;
 	g_bUserspeed[client] = false;
 	g_bUserinvisible[client] = false;
 	g_bUsergravity[client] = false;
@@ -351,7 +357,29 @@ public int MenuHandler_Shop(Menu menu, MenuAction action, int client, int item)
 					CPrintToChat(client, "{green}[%s] {default} You need more money to buy this!", Prefix);
 				}
 			}
-			
+			else if (StrEqual(sItem, "weapon_awp"))
+			{
+				if (g_bUserawp[client])
+				{
+					CPrintToChat(client, "{green}[%s] {default} You already own this item!", Prefix);
+					return;
+				}
+				else if (money >= cost)
+				{
+					//Take off money
+					int Cash = money - cost;
+					SetClientMoney(client, Cash);
+					
+					//Print message in chat
+					CPrintToChat(client, "{green}[%s] {default} You purchased an AWP with 1 bullet!", Prefix);
+					Client_GiveWeaponAndAmmo(client, "weapon_awp", _, 1, _, 0);
+					g_bUserawp[client] = true;
+				}
+				else
+				{
+					CPrintToChat(client, "{green}[%s] {default} You need more money to buy this!", Prefix);
+				}
+			}
 			else if (StrEqual(sItem, "weapon_deagle"))
 			{
 				if (g_bUserdeagle[client])
@@ -366,8 +394,8 @@ public int MenuHandler_Shop(Menu menu, MenuAction action, int client, int item)
 					SetClientMoney(client, Cash);
 					
 					//Print message in chat
-					CPrintToChat(client, "{green}[%s] {default} You purchased a Deagle Weapon with 1 bullet!", Prefix);
-					GivePlayerItemAmmo(client, "weapon_deagle");
+					CPrintToChat(client, "{green}[%s] {default} You purchased a Deagle with 1 bullet!", Prefix);
+					Client_GiveWeaponAndAmmo(client, "weapon_deagle", _, 1, _, 0);
 					g_bUserdeagle[client] = true;
 				}
 				else
