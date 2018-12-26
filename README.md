@@ -1,4 +1,4 @@
 # SimpleShopMenu
 Simple Shop Menu for CSGO
 
-This is a working version of Elitcky's plugin. 
+This is a fully working version of Elitcky's plugin.
